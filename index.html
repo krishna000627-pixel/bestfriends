@@ -1,173 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>For You, From Krishna 💛</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;1,400&family=DM+Sans:wght@300;400;500&family=Caveat:wght@600;700&display=swap" rel="stylesheet"/>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Payment To-Do</title>
 <style>
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
-:root{
-  --cream:#fdf6e3;--warm:#f5c842;--gold:#e8a020;
-  --blush:#f4a7b1;--rose:#e06b7e;--teal:#4ec9b0;
-  --navy:#1a1a2e;--brown:#5c3d2e;
+:root{--bg:#f6f7f9;--card:#fff;--tx:#1b1f24;--mu:#6b7280;--ln:#e5e7eb;--ac:#2563eb;--ok:#16a34a;--chip:#eef2ff;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1115;--card:#1a1d23;--tx:#e8eaed;--mu:#9aa0a8;--ln:#2a2e36;--ac:#60a5fa;--ok:#4ade80;--chip:#1e293b}}
+:root[data-theme="dark"]{--bg:#0f1115;--card:#1a1d23;--tx:#e8eaed;--mu:#9aa0a8;--ln:#2a2e36;--ac:#60a5fa;--ok:#4ade80;--chip:#1e293b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:12px 14px 8px;z-index:5;border-bottom:1px solid var(--ln)}
+h1{font-size:18px;margin:0 0 6px}
+.bar{height:6px;background:var(--ln);border-radius:3px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .2s}
+.meta{display:flex;justify-content:space-between;color:var(--mu);font-size:13px;margin:6px 0}
+.tools{display:flex;gap:8px}
+input[type=search]{flex:1;padding:8px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--card);color:var(--tx);font-size:15px}
+button{font:inherit;color:var(--tx)}
+.tb{padding:8px 10px;border:1px solid var(--ln);border-radius:8px;background:var(--card)}
+main{padding:10px 14px 40px;max-width:720px;margin:0 auto}
+.it{background:var(--card);border:1px solid var(--ln);border-radius:12px;padding:10px 12px;margin-bottom:10px;display:flex;gap:10px}
+.it.done{opacity:.5}
+.it.done .nm{text-decoration:line-through}
+.it input[type=checkbox]{width:22px;height:22px;margin-top:2px;accent-color:var(--ok);flex:none}
+.bd{flex:1;min-width:0}
+.top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.nm{font-weight:600}
+.sr{color:var(--mu);font-weight:400;margin-right:4px}
+.amt{font-weight:600;color:var(--ac);white-space:nowrap;background:none;border:0;padding:0}
+.bk{color:var(--mu);font-size:12px;margin:2px 0 6px}
+.row{display:flex;align-items:center;gap:8px;margin-top:5px}
+.lb{width:38px;color:var(--mu);font-size:12px;flex:none}
+.cp{flex:1;text-align:left;background:var(--chip);border:0;border-radius:8px;padding:7px 10px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:14px;overflow-wrap:anywhere}
+.cp.ok{outline:2px solid var(--ok)}
+#toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:#111;color:#fff;padding:8px 14px;border-radius:20px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
+#toast.on{opacity:1}
+</style>
+</head>
+<body>
+<header>
+  <h1>Payment To-Do</h1>
+  <div class="bar"><i id="bar"></i></div>
+  <div class="meta"><span id="cnt"></span><span id="tot"></span></div>
+  <div class="tools">
+    <input type="search" id="q" placeholder="Search name, bank, IFSC, account">
+    <button class="tb" id="hide">Hide done</button>
+    <button class="tb" id="rst">Reset</button>
+  </div>
+</header>
+<main id="list"></main>
+<div id="toast"></div>
+<script>
+// [name, IFSC, account, bank, amount]
+var D=[
+["MOHAN RADHAKISHAN","UCBA0002092","20920110037737","UCO",15750],
+["LAL SINGH MAN SINGH","UCBA0002092","20920110039441","UCO",19947],
+["ARUN TARACHADRA","BKID0009545","954518210002972","BOI",10895],
+["BRIJESH RAMDAS","PUNB0020800","0208001500022332","PNB",6371],
+["CHINTARAM DEVLAL","PUNB0020800","6506001500024401","PNB",1998],
+["DEEPAK BHAGWAT","NSPB0000002","501054293700","NSDL",1998],
+["DEEPAK TRILOK","PUNB0020800","0208001700171218","PNB",20886],
+["DEVEE SINGH KALA SINGH","UCBA0002092","20920110095577","UCO",20885],
+["DEVKA BAI PUNAM","IDFB0041203","10010767879","IDFC BANK",6063],
+["DHAN SINGH BONDAR","IPOS0000001","028210061747","POST OFFICE",6064],
+["DINESH NANURAM","BARB0HARDAX","30730100010281","BOB",6371],
+["GANESH JOKHILAL","PUNB0020800","0208000100133925","PNB",9994],
+["GANGA RAMKISHAN","IDFB0041203","10010770564","IDFC",1998],
+["GOURAV NOGAR SINGH","IBKL0001556","1556104000045225","IDBI BANK",6064],
+["GOVIND TARACHANDRA","PUNB0020800","0208001700194820","PNB",6371],
+["JITENDRA CHANDAN SINGH","PUNB0020800","0208001700174631","PNB",6063],
+["KAILASH BAIRSINGH","CBIN0281358","3486275812","CBI",6063],
+["KAJAL RAMKISHAN","PUNB0020800","0208001700193344","PNB",1998],
+["KISHOR ROOP SING","UCBA0002092","20920110129579","UCO",20886],
+["KRISHANA POONAM","PUNB0020800","0208001700102227","PNB",4196],
+["LAXMAN NATTHU","CBIN0281358","1543054097","CBI",6062],
+["MAHENDRA KUMAR","SBIN0000379","32537242614","SBI",4198],
+["MANISHA BAI PYAR SINGH","PUNB0020800","0208001700046349","PNB",1998],
+["MOHAN KAILASH","IPOS0000001","028210009321","BOI BANK",4197],
+["PHULWATI TRILOK","UCBA0002092","20923211003830","UCO",6062],
+["PUNAM BIKRAM","PUNB0020800","0208001700191638","PNB",6371],
+["PYAR SINGH KAILASH","IPOS0000001","028210067423","POST",4198],
+["RAJENDRA RAMDAS","IPOS0000001","028210063403","POST",1999],
+["RIYAN SINGH","IDFB0041203","10011129643","IDFC BANK",6063],
+["SANTILAL MANGILAL","BARB0DBHRDA","88080100019404","BOI",6371],
+["SARSWATI BAI","PUNB0020800","0208001700070133","PNB",6371],
+["SEEMA DHANSINGH","BARB0DBHRDA","88080100018082","BOB",6371],
+["SEWARAM","SBIN0003734","10924837536","SBI",9993],
+["SUBHASH DHANSING","UBIN0917800","520101068968112","UNION BANK",6063],
+["SURESH DHANSINGH","IOBA0003781","378101000005045","IOB",4196],
+["TULSIRAM ARJUN","UCBA0002092","20920110120347","UCO",20886],
+["VIKRAM KANASE","UCBA0002092","20920110034910","UCO",6370],
+["VILASH BER SINGH","BARB0DBHRD","88080100025675","CBI",20886],
+["BASANT","BKID0009540","954010410001200","BOI",21000],
+["SAURBHA HARDA","BARB0HARDA","30730200000257","BOB",35000]
+];
+var KEY="payment_todo_done_v1",done={},hideDone=false;
+try{done=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){done={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(done))}catch(e){}}
+var $=function(i){return document.getElementById(i)};
+var fmt=function(n){return n.toLocaleString("en-IN")};
+function toast(t){var e=$("toast");e.textContent=t;e.classList.add("on");clearTimeout(toast.t);toast.t=setTimeout(function(){e.classList.remove("on")},1200)}
+function copy(txt,btn,label){
+  var ok=function(){btn.classList.add("ok");setTimeout(function(){btn.classList.remove("ok")},800);toast(label+" copied")};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok,function(){fb()})}else fb();
+  function fb(){var t=document.createElement("textarea");t.value=txt;t.style.position="fixed";t.style.opacity="0";document.body.appendChild(t);t.select();try{document.execCommand("copy");ok()}catch(e){toast("Copy failed")}document.body.removeChild(t)}
 }
-html,body{width:100%;height:100%;overflow:hidden;}
-body{background:#fde8d0;font-family:'DM Sans',sans-serif;color:var(--brown);}
-
-/* particles */
-#ptx{position:fixed;inset:0;pointer-events:none;z-index:0;}
-.pt{position:absolute;border-radius:50%;animation:drift linear infinite;}
-@keyframes drift{0%{transform:translateY(105vh);opacity:0;}10%{opacity:.18;}90%{opacity:.18;}100%{transform:translateY(-10vh);opacity:0;}}
-
-/* ══ ENVELOPE ══ */
-#env-scene{position:fixed;inset:0;z-index:500;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:1.2rem;background:linear-gradient(135deg,#fde8d0,#fdf0e8 50%,#fef6e4);transition:opacity .8s,visibility .8s;}
-#env-scene.gone{opacity:0;visibility:hidden;pointer-events:none;}
-.env-wrap{position:relative;width:min(320px,84vw);height:220px;cursor:pointer;perspective:900px;filter:drop-shadow(0 20px 40px rgba(90,50,20,.22));}
-.env-body{position:absolute;inset:0;background:linear-gradient(160deg,#fff8ee 60%,#fdebd0);border-radius:8px 8px 16px 16px;border:1.5px solid rgba(224,160,80,.35);}
-.env-body::before,.env-body::after{content:'';position:absolute;bottom:0;width:0;height:0;border-style:solid;}
-.env-body::before{left:0;border-width:0 0 100px 160px;border-color:transparent transparent #f5d9a8 transparent;}
-.env-body::after{right:0;border-width:0 160px 100px 0;border-color:transparent #f0cd90 transparent transparent;}
-.env-flap{position:absolute;top:0;left:0;right:0;height:0;border-left:160px solid transparent;border-right:160px solid transparent;border-top:120px solid #f7e4b8;transform-origin:top center;transition:transform .75s cubic-bezier(.4,0,.2,1);z-index:3;}
-.env-flap.open{transform:rotateX(-185deg);}
-.seal{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;background:radial-gradient(circle at 36% 36%,#e06b7e,#b84460);display:flex;align-items:center;justify-content:center;font-size:1.4rem;z-index:4;box-shadow:0 3px 14px rgba(180,60,80,.45);transition:transform .35s,opacity .35s;}
-.seal.hide{transform:translate(-50%,-50%) scale(0);opacity:0;}
-.letter-peek{position:absolute;bottom:-1px;left:50%;transform:translateX(-50%);width:88%;height:0;overflow:hidden;background:#fff;border-radius:6px 6px 0 0;border:1.5px solid rgba(224,160,80,.3);border-bottom:none;transition:height .65s .35s cubic-bezier(.34,1.56,.64,1);display:flex;align-items:center;justify-content:center;z-index:2;}
-.letter-peek.up{height:170px;}
-.letter-peek span{font-family:'Caveat',cursive;font-size:1.3rem;color:var(--rose);opacity:0;transition:opacity .45s .75s;text-align:center;padding:1rem;line-height:1.5;}
-.letter-peek.up span{opacity:1;}
-.tap-hint{font-family:'Caveat',cursive;font-size:1.1rem;color:#a07858;animation:bob 2s ease-in-out infinite;}
-@keyframes bob{0%,100%{transform:translateY(0);}50%{transform:translateY(-6px);}}
-
-/* ══ BOOK ══ */
-#book{position:fixed;inset:0;overflow:hidden;opacity:0;visibility:hidden;transition:opacity .5s,visibility .5s;}
-#book.show{opacity:1;visibility:visible;}
-.page{position:absolute;top:0;left:0;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:1.4rem 1.2rem;overflow:hidden;transition:transform .52s cubic-bezier(.77,0,.175,1);will-change:transform;}
-.page[data-idx="0"]{background:linear-gradient(145deg,#fff8f0,#fdf4e8);}
-
-.page[data-idx="2"]{background:linear-gradient(145deg,#0f0c29,#1a1040,#16213e);}
-.page[data-idx="3"]{background:linear-gradient(145deg,#1a1a2e,#2a1a3e);}
-
-/* ══ PAGE 0 — COVER ══ */
-.p1-tag{font-family:'Caveat',cursive;font-size:1rem;color:var(--rose);background:rgba(244,167,177,.15);border:1px solid rgba(224,107,126,.25);padding:.28rem 1rem;border-radius:100px;margin-bottom:1rem;}
-.p1-title{font-family:'Playfair Display',serif;font-size:clamp(2.8rem,11vw,5rem);font-weight:700;line-height:1.0;color:var(--navy);text-align:center;}
-.p1-title em{color:var(--gold);font-style:italic;}
-.p1-sub{font-size:.95rem;color:#7a5c46;max-width:340px;margin:.85rem auto 0;font-weight:300;line-height:1.8;text-align:center;}
-.p1-from{margin-top:1.6rem;font-family:'Caveat',cursive;font-size:1.45rem;color:var(--navy);background:var(--warm);padding:.45rem 1.7rem;border-radius:100px;box-shadow:0 6px 22px rgba(232,160,32,.38);cursor:pointer;transition:transform .2s;display:inline-block;border:none;}
-.p1-from:active{transform:scale(.94);}
-.orbit{position:absolute;border-radius:50%;animation:spin linear infinite;pointer-events:none;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.orbit span{position:absolute;font-size:1.3rem;}
-
-/* ══ PAGE 1 — COSMIC VIBE ══ */
-.page[data-idx="1"]{background:linear-gradient(160deg,#0a0015,#110828,#0d1f3c);}
-
-/* aurora blobs behind everything */
-.aurora{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;animation:auroraFloat ease-in-out infinite;}
-@keyframes auroraFloat{0%,100%{transform:translate(0,0) scale(1);}50%{transform:translate(12px,-18px) scale(1.08);}}
-
-/* scrollable inner */
-.p2-inner{
-  width:100%;max-width:460px;height:100%;
-  overflow-y:auto;-webkit-overflow-scrolling:touch;
-  padding:1rem .2rem 5rem;
-  display:flex;flex-direction:column;gap:1rem;
-  scrollbar-width:none;
-  touch-action:pan-y;
+function render(){
+  var q=$("q").value.trim().toLowerCase(),L=$("list");L.innerHTML="";
+  D.map(function(r,i){return [r,i]}).reverse().forEach(function(p){
+    var r=p[0],i=p[1],id=i+1,isDone=!!done[id];
+    if(hideDone&&isDone)return;
+    if(q&&(r.join(" ").toLowerCase().indexOf(q)<0))return;
+    var d=document.createElement("div");d.className="it"+(isDone?" done":"");
+    d.innerHTML='<input type="checkbox"'+(isDone?" checked":"")+'><div class="bd"><div class="top"><span class="nm"><span class="sr">'+id+'.</span>'+r[0]+'</span><button class="amt" data-c="'+r[4]+'" data-l="Amount">₹'+fmt(r[4])+'</button></div><div class="bk">'+r[3]+'</div><div class="row"><span class="lb">IFSC</span><button class="cp" data-c="'+r[1]+'" data-l="IFSC">'+r[1]+'</button></div><div class="row"><span class="lb">A/C</span><button class="cp" data-c="'+r[2]+'" data-l="Account no.">'+r[2]+'</button></div></div>';
+    d.querySelector("input").onchange=function(e){if(e.target.checked)done[id]=1;else delete done[id];save();render()};
+    d.querySelectorAll("button").forEach(function(b){b.onclick=function(){copy(b.dataset.c,b,b.dataset.l)}});
+    L.appendChild(d);
+  });
+  var n=0,s=0,t=0;D.forEach(function(r,i){t+=r[4];if(done[i+1]){n++;s+=r[4]}});
+  $("cnt").textContent=n+" / "+D.length+" done";
+  $("tot").textContent="₹"+fmt(s)+" of ₹"+fmt(t);
+  $("bar").style.width=(n/D.length*100)+"%";
 }
-.p2-inner::-webkit-scrollbar{display:none;}
-
-/* section label */
-.p2-section-label{
-  font-family:'Caveat',cursive;font-size:.82rem;
-  color:rgba(255,255,255,.3);letter-spacing:.12em;text-transform:uppercase;
-  text-align:center;
-}
-
-/* ── MUSIC PLAYER ── */
-.music-card{
-  width:100%;
-  background:rgba(255,255,255,.06);
-  backdrop-filter:blur(20px);
-  -webkit-backdrop-filter:blur(20px);
-  border:1px solid rgba(255,255,255,.12);
-  border-radius:24px;
-  padding:1rem 1.1rem 1.1rem;
-  display:flex;flex-direction:column;gap:.7rem;
-  position:relative;
-  flex-shrink:0;
-}
-/* glow accent top-right */
-.music-card::after{
-  content:'';position:absolute;
-  width:140px;height:140px;border-radius:50%;
-  background:radial-gradient(circle,rgba(245,200,66,.18),transparent 70%);
-  top:-50px;right:-30px;pointer-events:none;
-}
-.mc-label{font-family:'Caveat',cursive;font-size:.8rem;color:rgba(245,200,66,.55);letter-spacing:.1em;text-transform:uppercase;}
-.mc-now{display:flex;align-items:center;gap:1rem;}
-.mc-vinyl{
-  width:56px;height:56px;border-radius:50%;flex-shrink:0;
-  background:conic-gradient(from 0deg,#2d1b69,#0a0015,#f5c842 30%,#0a0015,#e06b7e 70%,#0a0015,#2d1b69);
-  display:flex;align-items:center;justify-content:center;
-  box-shadow:0 0 0 3px rgba(245,200,66,.15),0 6px 22px rgba(0,0,0,.6);
-}
-.mc-vinyl::after{content:'';width:13px;height:13px;border-radius:50%;background:#0a0015;border:2px solid rgba(245,200,66,.25);}
-.mc-vinyl.spin{animation:vinylSpin 2.8s linear infinite;}
-@keyframes vinylSpin{to{transform:rotate(360deg);}}
-.mc-info{flex:1;min-width:0;}
-.mc-title{font-family:'Playfair Display',serif;font-style:italic;font-size:1.05rem;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.mc-artist{font-family:'Caveat',cursive;font-size:.85rem;color:rgba(255,255,255,.4);margin-top:.12rem;}
-.mc-bar{width:100%;height:3px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden;cursor:pointer;}
-.mc-fill{height:100%;background:linear-gradient(90deg,var(--warm),var(--rose));border-radius:3px;width:0%;transition:width .5s linear;}
-.mc-times{display:flex;justify-content:space-between;font-size:.65rem;color:rgba(255,255,255,.28);font-family:'DM Sans',sans-serif;margin-top:.18rem;}
-.mc-controls{display:flex;align-items:center;justify-content:center;gap:1.6rem;}
-.mc-btn{background:none;border:none;cursor:pointer;color:rgba(255,255,255,.4);font-size:1.15rem;padding:.18rem;transition:color .2s,transform .15s;}
-.mc-btn:active{transform:scale(.86);color:#fff;}
-.mc-play{
-  width:46px;height:46px;border-radius:50%;
-  background:linear-gradient(135deg,#f5c842,#e8a020);
-  border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;
-  font-size:1rem;color:#0a0015;font-weight:700;
-  box-shadow:0 0 0 6px rgba(245,200,66,.12),0 4px 18px rgba(245,200,66,.4);
-  transition:transform .2s cubic-bezier(.34,1.56,.64,1);
-}
-.mc-play:active{transform:scale(.9);}
-.mc-eq{display:flex;align-items:flex-end;gap:2px;height:14px;opacity:0;transition:opacity .3s;}
-.mc-eq.active{opacity:1;}
-.mc-eq span{width:3px;border-radius:2px;background:var(--warm);animation:eq .9s ease-in-out infinite;}
-.mc-eq span:nth-child(1){animation-delay:0s;}
-.mc-eq span:nth-child(2){animation-delay:.13s;}
-.mc-eq span:nth-child(3){animation-delay:.27s;}
-.mc-eq span:nth-child(4){animation-delay:.08s;}
-.mc-eq span:nth-child(5){animation-delay:.2s;}
-@keyframes eq{0%,100%{height:3px;}50%{height:13px;}}
-/* tracklist — horizontal scrolling song chips */
-.mc-tracklist{
-  display:flex;gap:.45rem;
-  overflow-x:auto;overflow-y:visible;
-  padding:.15rem .05rem .35rem;
-  scrollbar-width:none;
-  -webkit-overflow-scrolling:touch;
-  touch-action:pan-x;
-}
-.mc-tracklist::-webkit-scrollbar{display:none;}
-.mc-song-row{
-  font-family:'Caveat',cursive;font-size:.88rem;
-  color:rgba(255,255,255,.55);
-  padding:.32rem .85rem;border-radius:100px;
-  background:rgba(255,255,255,.06);
-  border:1px solid rgba(255,255,255,.08);
-  cursor:pointer;white-space:nowrap;flex-shrink:0;
-  transition:background .2s,color .2s,border-color .2s;
-}
-.mc-song-row:active{opacity:.7;}
-.mc-song-row.playing{
-  background:rgba(245,200,66,.18);
-  border-color:rgba(245,200,66,.35);
-  color:#fff;
-}
-
+$("q").oninput=render;
+$("hide").onclick=function(){hideDone=!hideDone;this.textContent=hideDone?"Show done":"Hide done";render()};
+$("rst").onclick=function(){if(confirm("Clear all ticks?")){done={};save();render()}};
+render();
+</script>
+</body>
+</html>
 /* ── VIBE BOARD ── tap a card to "send a vibe" */
 .vibe-board-title{
   font-family:'Playfair Display',serif;font-style:italic;
