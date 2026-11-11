@@ -33,8 +33,9 @@ main{padding:14px 12px 60px;max-width:760px;margin:auto}
 .qn{font-weight:700}.lab{font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-family:system-ui,sans-serif}
 .pg p{margin:0 0 6px}
 .fm{font-size:16px;color:#7c2d12;margin-bottom:6px}
-.sol{overflow-x:auto;overflow-y:hidden;padding:2px 0}
-.sol mjx-container{margin:6px 0!important;text-align:left!important}
+.sol{overflow:visible;padding:2px 0}
+.sol mjx-container{margin:6px 0!important;text-align:left!important;max-width:100%}
+.sol mjx-container svg{max-width:100%;height:auto}
 .ans{margin-top:4px}
 .ans b{color:#b91c1c}
 .book .pg{background:var(--card);background-image:none;color:var(--tx);font:17px/1.55 Georgia,serif;padding:12px;border:1px solid var(--ln);box-shadow:none}
@@ -121,7 +122,7 @@ try{S=JSON.parse(localStorage.getItem("hw63")||"{}");book=localStorage.getItem("
 const m=document.getElementById("m"),tb=document.getElementById("tabs");
 const tx=s=>"\\(\\displaystyle "+s+"\\)";
 function sol(ty,q,st){const ex=q.split("#")[0],rows=[];const s=st.split("|");
-if(ty==="d")rows.push(ex+" &= "+s.shift());else rows.push("I &= "+ex);
+if(ty==="d")rows.push("&"+ex);else rows.push("I &= "+ex);
 s.forEach(x=>rows.push(x[0]==="@"?"&"+x.slice(1):"&= "+x));
 return "\\[\\begin{aligned}"+rows.join("\\\\")+"\\end{aligned}\\]"}
 function cnt(t){return T[t][2].filter((_,k)=>S[T[t][3]+k]).length}
