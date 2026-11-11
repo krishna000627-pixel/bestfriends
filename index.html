@@ -1,21 +1,148 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
-<title>503 Service Unavailable</title>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Integration HW: Copy and Book</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kalam:wght@400;700&display=swap">
+<script>
+window.MathJax={tex:{macros:{dd:"\\dfrac{d}{dx}",cosec:"\\operatorname{cosec}"}},svg:{fontCache:"global"},options:{enableMenu:false}};
+function typeset(){try{if(window.MathJax&&MathJax.typesetPromise){MathJax.typesetPromise([document.getElementById("m")])}}catch(e){}}
+</script>
+<script async onload="typeset()" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/3.2.2/es5/tex-svg.min.js"></script>
 <style>
-body{margin:0;min-height:100vh;display:grid;place-items:center;background:#0e1014;color:#e9ebef;font:16px/1.5 system-ui,sans-serif;text-align:center;padding:24px}
-h1{font-size:64px;margin:0;color:#f87171}
-p{color:#8b93a1;margin:8px 0 0}
-</style>
-</head>
-<body>
-<div>
-<h1>503</h1>
-<h2>Service Unavailable</h2>
-<p>This server is down for maintenance. Please try again later.</p>
-</div>
-</body>
-</html>
+:root{--bg:#ebe7df;--tx:#1f1b16;--mu:#6b6258;--ac:#c2410c;--ln:#d9d1c4;--ok:#15803d;--card:#fff;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15120e;--tx:#f3ede4;--mu:#a39a8d;--ac:#fb923c;--ln:#38322a;--ok:#4ade80;--card:#211d17;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#15120e;--tx:#f3ede4;--mu:#a39a8d;--ac:#fb923c;--ln:#38322a;--ok:#4ade80;--card:#211d17;color-scheme:dark}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}html{scroll-padding-top:150px}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.5 system-ui,-apple-system,sans-serif}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:10}
+header{position:sticky;top:env(safe-area-inset-top,0px);background:var(--bg);padding:12px 14px 0;border-bottom:1px solid var(--ln);z-index:5}
+.top{display:flex;justify-content:space-between;align-items:baseline}
+h1{font-size:18px;margin:0}#c{font-size:13px;color:var(--mu);font-weight:600}
+.bar{height:6px;background:var(--ln);border-radius:9px;overflow:hidden;margin:8px 0}
+.bar i{display:block;height:100%;width:0;background:var(--ok);transition:width .3s}
+.tabs,.tools{display:flex;gap:6px;overflow-x:auto;padding-bottom:8px}
+.tabs button,.tools button{flex:none;font:inherit;font-size:14px;border:1px solid var(--ln);background:var(--card);color:var(--tx);border-radius:10px;padding:6px 12px}
+.tabs button.on,.tools button.on{background:var(--ac);color:#fff;border-color:var(--ac)}
+.tools button{font-size:13px;border-radius:99px;padding:3px 11px}
+main{padding:14px 12px 60px;max-width:760px;margin:auto}
+.pg{position:relative;border-radius:6px;margin-bottom:16px;padding:10px 12px 12px 52px;box-shadow:0 2px 8px #0003;overflow:hidden;background:#fffef8;color:#1e3a8a;font:19px/28px Kalam,"Segoe Print",cursive}
+.pg{background-image:linear-gradient(90deg,transparent 40px,#e11d48 40px,#e11d48 41px,transparent 41px),repeating-linear-gradient(#fffef8 0 27px,#bfdbfe 27px 28px);background-position:0 0,0 6px}
+.pg.done{outline:3px solid var(--ok)}
+.hd{display:flex;align-items:center;gap:10px;margin-left:-40px;height:28px;margin-bottom:6px}
+.ck{width:26px;height:26px;accent-color:#15803d;flex:none}
+.qn{font-weight:700}.lab{font-size:13px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;font-family:system-ui,sans-serif}
+.pg p{margin:0 0 6px}
+.fm{font-size:16px;color:#7c2d12;margin-bottom:6px}
+.sol{overflow-x:auto;overflow-y:hidden;padding:2px 0}
+.sol mjx-container{margin:6px 0!important;text-align:left!important}
+.ans{margin-top:4px}
+.ans b{color:#b91c1c}
+.book .pg{background:var(--card);background-image:none;color:var(--tx);font:17px/1.55 Georgia,serif;padding:12px;border:1px solid var(--ln);box-shadow:none}
+.book .hd{margin-left:0;height:auto}
+.book .fm{background:#fff7ed;color:#7c2d12;border-left:4px solid var(--ac);padding:6px 10px;border-radius:4px}
+@media (prefers-color-scheme:dark){.book .fm{background:#2a1f14;color:#fdba74}}
+.book .ans{padding:6px 10px;border:1px solid var(--ok);border-radius:6px;display:inline-block}
+.book .ans b{color:var(--ok)}
+.hide{display:none!important}.empty{text-align:center;color:var(--mu);padding:30px 0}
+</style></head><body>
+<header><div class="top"><h1>Integration HW</h1><span id="c"></span></div>
+<div class="bar"><i id="b"></i></div>
+<div class="tabs" id="tabs"></div>
+<div class="tools"><button data-f="all" class="on">All</button><button data-f="todo">To do</button><button data-f="done">Done</button><button id="md">📖 Book style</button><button id="r">Reset</button></div></header>
+<main id="m"></main>
+<script>
+// question @@ steps (| separated, @ = plain row) @@ answer @@ formula @@ label
+const D=String.raw`\dd\left(\frac{x^6}{6}+\frac{x^4}{4}\right) @@ \frac16(6x^5)+\frac14(4x^3) @@ x^5+x^3 @@ \frac{1}{n+1}\dd\left(x^{n+1}\right)=x^n
+\dd(3\log x+2x)#x=5 @@ 3\cdot\frac1x+2|@\text{Put }x=5:\ \frac35+2=\frac{13}{5} @@ \frac{13}{5} @@ \dd(\log x)=\frac1x,\ \ \dd(x)=1
+\dd(5e^x-x) @@ 5\dd(e^x)-\dd(x)|5e^x-1 @@ 5e^x-1 @@ \dd(e^x)=e^x
+\dd(4\sqrt x+1)#x=4 @@ 4\cdot\frac{1}{2\sqrt x}+0|\frac{2}{\sqrt x}|@\text{Put }x=4:\ \frac{2}{\sqrt4}=1 @@ 1 @@ \dd(\sqrt x)=\frac{1}{2\sqrt x}
+\dd\left(\frac1x+x\right)#x=2 @@ -\frac1{x^2}+1|@\text{Put }x=2:\ -\frac14+1=\frac34 @@ \frac34 @@ \dd\left(\frac1x\right)=-\frac1{x^2}
+\dd(3\cdot2^x) @@ 3\cdot2^x\log_e2 @@ 3\cdot2^x\log_e2 @@ \dd(a^x)=a^x\log_e a
+\dd(5x+9) @@ 5(1)+0 @@ 5 @@ \dd(x)=1
+\frac{dy}{dx}#y=x^2+3x @@ \dd(x^2+3x)|2x+3 @@ 2x+3 @@ \dd(y)=\frac{dy}{dx}
+\dd(2\cos x+x)#x=\frac\pi2 @@ -2\sin x+1|@\text{Put }x=\tfrac\pi2:\ -2(1)+1=-1 @@ -1 @@ \dd(\cos x)=-\sin x
+\dd(3\sin x)#x=0 @@ 3\cos x|@\text{Put }x=0:\ 3(1)=3 @@ 3 @@ \dd(\sin x)=\cos x
+\dd(\tan x+x)#x=0 @@ \sec^2x+1|@\text{Put }x=0:\ 1+1=2 @@ 2 @@ \dd(\tan x)=\sec^2x
+\dd(\cot x-x)#x=\frac\pi2 @@ -\cosec^2x-1|@\text{Put }x=\tfrac\pi2:\ -1-1=-2 @@ -2 @@ \dd(\cot x)=-\cosec^2x
+\dd(2\sec x)#x=\frac\pi3 @@ 2\sec x\tan x|@\text{Put }x=\tfrac\pi3:\ 2(2)(\sqrt3)=4\sqrt3 @@ 4\sqrt3 @@ \dd(\sec x)=\sec x\tan x
+\dd(\cosec x)#x=\frac\pi6 @@ -\cosec x\cot x|@\text{Put }x=\tfrac\pi6:\ -(2)(\sqrt3)=-2\sqrt3 @@ -2\sqrt3 @@ \dd(\cosec x)=-\cosec x\cot x
+\dd(\log\sec x)#x=\frac\pi3 @@ \tan x|@\text{Put }x=\tfrac\pi3:\ \tan\tfrac\pi3=\sqrt3 @@ \sqrt3 @@ \dd(\log\sec x)=\tan x
+\dd(\log\sin x)#x=\frac\pi6 @@ \cot x|@\text{Put }x=\tfrac\pi6:\ \cot\tfrac\pi6=\sqrt3 @@ \sqrt3 @@ \dd(\log\sin x)=\cot x
+\dd(2\sin^{-1}x)#x=\frac12 @@ \frac{2}{\sqrt{1-x^2}}|@\text{Put }x=\tfrac12:\ \frac{2}{\sqrt{3/4}}=\frac{4}{\sqrt3} @@ \frac4{\sqrt3} @@ \dd(\sin^{-1}x)=\frac1{\sqrt{1-x^2}}
+\dd(\cos^{-1}x)#x=\frac12 @@ -\frac1{\sqrt{1-x^2}}|@\text{Put }x=\tfrac12:\ -\frac1{\sqrt{3/4}}=-\frac2{\sqrt3} @@ -\frac2{\sqrt3} @@ \dd(\cos^{-1}x)=-\frac1{\sqrt{1-x^2}}
+\dd(3\tan^{-1}x)#x=1 @@ \frac3{1+x^2}|@\text{Put }x=1:\ \frac3{1+1}=\frac32 @@ \frac32 @@ \dd(\tan^{-1}x)=\frac1{1+x^2}
+\dd(\cot^{-1}x)#x=1 @@ -\frac1{1+x^2}|@\text{Put }x=1:\ -\frac1{1+1}=-\frac12 @@ -\frac12 @@ \dd(\cot^{-1}x)=\frac{-1}{1+x^2}
+\dd(2\sec^{-1}x)#x=2 @@ \frac2{x\sqrt{x^2-1}}|@\text{Put }x=2:\ \frac2{2\sqrt3}=\frac1{\sqrt3} @@ \frac1{\sqrt3} @@ \dd(\sec^{-1}x)=\frac1{x\sqrt{x^2-1}}
+\dd(3\cosec^{-1}x)#x=2 @@ -\frac3{x\sqrt{x^2-1}}|@\text{Put }x=2:\ -\frac3{2\sqrt3}=-\frac{\sqrt3}2 @@ -\frac{\sqrt3}2 @@ \dd(\cosec^{-1}x)=\frac{-1}{x\sqrt{x^2-1}}
+\dd\left[\sin^{-1}\frac x5\right]#x=3 @@ \frac1{\sqrt{5^2-x^2}}|@\text{Put }x=3:\ \frac1{\sqrt{25-9}}=\frac14 @@ \frac14 @@ \dd\left(\sin^{-1}\frac xa\right)=\frac1{\sqrt{a^2-x^2}}
+\dd\left[\cos^{-1}\frac x5\right]#x=4 @@ -\frac1{\sqrt{5^2-x^2}}|@\text{Put }x=4:\ -\frac1{\sqrt{25-16}}=-\frac13 @@ -\frac13 @@ \dd\left(\cos^{-1}\frac xa\right)=\frac{-1}{\sqrt{a^2-x^2}}
+\dd\left[\frac12\tan^{-1}\frac x2\right]#x=2 @@ \frac1{2^2+x^2}|@\text{Put }x=2:\ \frac1{4+4}=\frac18 @@ \frac18 @@ \dd\left(\frac1a\tan^{-1}\frac xa\right)=\frac1{a^2+x^2}
+\dd\left[\frac13\cot^{-1}\frac x3\right]#x=3 @@ -\frac1{3^2+x^2}|@\text{Put }x=3:\ -\frac1{9+9}=-\frac1{18} @@ -\frac1{18} @@ \dd\left(\frac1a\cot^{-1}\frac xa\right)=\frac{-1}{a^2+x^2}
+\dd\left[\frac13\sec^{-1}\frac x3\right]#x=5 @@ \frac1{x\sqrt{x^2-3^2}}|@\text{Put }x=5:\ \frac1{5\sqrt{25-9}}=\frac1{20} @@ \frac1{20} @@ \dd\left(\frac1a\sec^{-1}\frac xa\right)=\frac1{x\sqrt{x^2-a^2}}
+\dd\left[\frac12\cosec^{-1}\frac x2\right]#x=4 @@ -\frac1{x\sqrt{x^2-2^2}}|@\text{Put }x=4:\ -\frac1{4\sqrt{16-4}}=-\frac1{8\sqrt3} @@ -\frac1{8\sqrt3} @@ \dd\left(\frac1a\cosec^{-1}\frac xa\right)=\frac{-1}{x\sqrt{x^2-a^2}}`;
+const I=String.raw`\int(3x^2+4x+5)\,dx @@ 3\int x^2dx+4\int x\,dx+5\int dx|3\cdot\frac{x^3}3+4\cdot\frac{x^2}2+5x @@ x^3+2x^2+5x+c @@ \int x^ndx=\frac{x^{n+1}}{n+1}+c,\ n\ne-1
+\int\frac{2x+3}{x}\,dx @@ \int\left(2+\frac3x\right)dx|2\int dx+3\int\frac1x\,dx|2x+3\log x @@ 2x+3\log x+c @@ \int\frac1xdx=\log x+c
+\int(e^x+2x)\,dx @@ \int e^xdx+2\int x\,dx|e^x+2\cdot\frac{x^2}2 @@ e^x+x^2+c @@ \int e^xdx=e^x+c
+\int\left(\frac3{\sqrt x}+2x\right)dx @@ 3\int\frac1{\sqrt x}dx+2\int x\,dx|3(2\sqrt x)+2\cdot\frac{x^2}2 @@ 6\sqrt x+x^2+c @@ \int\frac1{\sqrt x}dx=2\sqrt x+c
+\int\left(\frac1{x^2}+x\right)dx @@ \int\frac1{x^2}dx+\int x\,dx|-\frac1x+\frac{x^2}2 @@ -\frac1x+\frac{x^2}2+c @@ \int\frac1{x^2}dx=-\frac1x+c
+\int(2^x+3^x)\,dx @@ \int2^xdx+\int3^xdx|\frac{2^x}{\log_e2}+\frac{3^x}{\log_e3} @@ \frac{2^x}{\log_e2}+\frac{3^x}{\log_e3}+c @@ \int a^xdx=\frac{a^x}{\log_e a}+c
+\int(4+x)\,dx @@ 4\int dx+\int x\,dx|4x+\frac{x^2}2 @@ 4x+\frac{x^2}2+c @@ \int dx=x+c
+\int\frac{dy}{dx}\,dx#\frac{dy}{dx}=6x+2 @@ \int(6x+2)\,dx|3x^2+2x @@ y=3x^2+2x+c @@ \int\frac{dy}{dx}dx=y+c
+\int(\sin x+2x)\,dx @@ \int\sin x\,dx+2\int x\,dx|-\cos x+x^2 @@ -\cos x+x^2+c @@ \int\sin x\,dx=-\cos x+c
+\int(\cos x-3)\,dx @@ \int\cos x\,dx-3\int dx|\sin x-3x @@ \sin x-3x+c @@ \int\cos x\,dx=\sin x+c
+\int(\sec^2x+\cos x)\,dx @@ \int\sec^2x\,dx+\int\cos x\,dx|\tan x+\sin x @@ \tan x+\sin x+c @@ \int\sec^2x\,dx=\tan x+c
+\int(\cosec^2x+2)\,dx @@ \int\cosec^2x\,dx+2\int dx|-\cot x+2x @@ -\cot x+2x+c @@ \int\cosec^2x\,dx=-\cot x+c
+\int(\sec x\tan x+1)\,dx @@ \int\sec x\tan x\,dx+\int dx|\sec x+x @@ \sec x+x+c @@ \int\sec x\tan x\,dx=\sec x+c
+\int(\cosec x\cot x+x)\,dx @@ \int\cosec x\cot x\,dx+\int x\,dx|-\cosec x+\frac{x^2}2 @@ -\cosec x+\frac{x^2}2+c @@ \int\cosec x\cot x\,dx=-\cosec x+c
+\int(\tan x+1)\,dx @@ \int\tan x\,dx+\int dx|\log\sec x+x @@ \log\sec x+x+c @@ \int\tan x\,dx=\log\sec x+c
+\int(\cot x+\cos x)\,dx @@ \int\cot x\,dx+\int\cos x\,dx|\log\sin x+\sin x @@ \log\sin x+\sin x+c @@ \int\cot x\,dx=\log\sin x+c
+\int\left(\frac1{\sqrt{1-x^2}}+2x\right)dx @@ \int\frac{dx}{\sqrt{1-x^2}}+2\int x\,dx|\sin^{-1}x+x^2 @@ \sin^{-1}x+x^2+c @@ \int\frac{dx}{\sqrt{1-x^2}}=\sin^{-1}x+c
+\int\left(\frac{-1}{\sqrt{1-x^2}}+e^x\right)dx @@ \int\frac{-dx}{\sqrt{1-x^2}}+\int e^xdx|\cos^{-1}x+e^x @@ \cos^{-1}x+e^x+c @@ \int\frac{-1}{\sqrt{1-x^2}}dx=\cos^{-1}x+c
+\int\left(\frac1{1+x^2}+\frac1x\right)dx @@ \int\frac{dx}{1+x^2}+\int\frac{dx}x|\tan^{-1}x+\log x @@ \tan^{-1}x+\log x+c @@ \int\frac{dx}{1+x^2}=\tan^{-1}x+c
+\int\left(\frac{-1}{1+x^2}+3\right)dx @@ \int\frac{-dx}{1+x^2}+3\int dx|\cot^{-1}x+3x @@ \cot^{-1}x+3x+c @@ \int\frac{-1}{1+x^2}dx=\cot^{-1}x+c
+\int\left(\frac1{x\sqrt{x^2-1}}+1\right)dx @@ \int\frac{dx}{x\sqrt{x^2-1}}+\int dx|\sec^{-1}x+x @@ \sec^{-1}x+x+c @@ \int\frac{dx}{x\sqrt{x^2-1}}=\sec^{-1}x+c
+\int\left(\frac{-1}{x\sqrt{x^2-1}}+2x\right)dx @@ \int\frac{-dx}{x\sqrt{x^2-1}}+2\int x\,dx|\cosec^{-1}x+x^2 @@ \cosec^{-1}x+x^2+c @@ \int\frac{-1}{x\sqrt{x^2-1}}dx=\cosec^{-1}x+c
+\int\frac{dx}{\sqrt{25-x^2}} @@ \int\frac{dx}{\sqrt{5^2-x^2}}|\sin^{-1}\frac x5 @@ \sin^{-1}\frac x5+c @@ \int\frac{dx}{\sqrt{a^2-x^2}}=\sin^{-1}\frac xa+c
+\int\frac{-dx}{\sqrt{49-x^2}} @@ \int\frac{-dx}{\sqrt{7^2-x^2}}|\cos^{-1}\frac x7 @@ \cos^{-1}\frac x7+c @@ \int\frac{-dx}{\sqrt{a^2-x^2}}=\cos^{-1}\frac xa+c
+\int\frac{dx}{9+x^2} @@ \int\frac{dx}{3^2+x^2}|\frac13\tan^{-1}\frac x3 @@ \frac13\tan^{-1}\frac x3+c @@ \int\frac{dx}{a^2+x^2}=\frac1a\tan^{-1}\frac xa+c
+\int\frac{-dx}{16+x^2} @@ \int\frac{-dx}{4^2+x^2}|\frac14\cot^{-1}\frac x4 @@ \frac14\cot^{-1}\frac x4+c @@ \int\frac{-dx}{a^2+x^2}=\frac1a\cot^{-1}\frac xa+c
+\int\frac{dx}{x\sqrt{x^2-25}} @@ \int\frac{dx}{x\sqrt{x^2-5^2}}|\frac15\sec^{-1}\frac x5 @@ \frac15\sec^{-1}\frac x5+c @@ \int\frac{dx}{x\sqrt{x^2-a^2}}=\frac1a\sec^{-1}\frac xa+c
+\int\frac{-dx}{x\sqrt{x^2-36}} @@ \int\frac{-dx}{x\sqrt{x^2-6^2}}|\frac16\cosec^{-1}\frac x6 @@ \frac16\cosec^{-1}\frac x6+c @@ \int\frac{-dx}{x\sqrt{x^2-a^2}}=\frac1a\cosec^{-1}\frac xa+c`;
+const E=String.raw`\int\frac2x\,dx#x\lt0 @@ 2\int\frac1x\,dx|2\log|x| @@ 2\log|x|+c @@ \int\frac1xdx=\log|x|+c @@ Note
+\int_{-5}^{-2}\frac{dx}x @@ \left[\log|x|\right]_{-5}^{-2}|\log|-2|-\log|-5||\log2-\log5 @@ \log\frac25 @@ \log(-2)\text{ is not defined, so use }\log|x| @@ Note
+\int6\cos x\,dx @@ 6\int\cos x\,dx|6\sin x @@ 6\sin x+c @@ \int A f'(x)\,dx=A\int f'(x)\,dx @@ Property 1
+\int9\,dx @@ 9\int dx|9x @@ 9x+c @@ \int k\,dx=kx+c @@ Property 2
+\int x^5\,dx @@ \frac{x^{5+1}}{5+1} @@ \frac{x^6}6+c @@ \int x^ndx=\frac{x^{n+1}}{n+1}+c @@ Property 3
+\int(3x+2)^4dx @@ \frac{(3x+2)^{4+1}}{(4+1)\cdot3} @@ \frac{(3x+2)^5}{15}+c @@ \int(ax+b)^ndx=\frac{(ax+b)^{n+1}}{(n+1)a}+c @@ Property 4`;
+const P=s=>s.split("\n").map(l=>l.split(" @@ "));
+const T=[["A","Differentiation",P(D),"d","Differentiation"],["B","Integration",P(I),"i","Integration"],["C","Note + Properties",P(E),"e",""]];
+let S={},flt="all",tab=0,book=false;
+try{S=JSON.parse(localStorage.getItem("hw63")||"{}");book=localStorage.getItem("hw63m")==="1"}catch(e){}
+const m=document.getElementById("m"),tb=document.getElementById("tabs");
+const tx=s=>"\\(\\displaystyle "+s+"\\)";
+function sol(ty,q,st){const ex=q.split("#")[0],rows=[];const s=st.split("|");
+if(ty==="d")rows.push(ex+" &= "+s.shift());else rows.push("I &= "+ex);
+s.forEach(x=>rows.push(x[0]==="@"?"&"+x.slice(1):"&= "+x));
+return "\\[\\begin{aligned}"+rows.join("\\\\")+"\\end{aligned}\\]"}
+function cnt(t){return T[t][2].filter((_,k)=>S[T[t][3]+k]).length}
+function stats(){let n=0,tot=0;T.forEach((x,i)=>{n+=cnt(i);tot+=x[2].length});
+document.getElementById("c").textContent=n+" / "+tot+" done";document.getElementById("b").style.width=(n/tot*100)+"%";
+tb.querySelectorAll("button").forEach((b,i)=>b.textContent=T[i][0]+". "+T[i][1]+" "+cnt(i)+"/"+T[i][2].length)}
+function render(){
+tb.innerHTML=T.map((t,i)=>`<button data-t="${i}" class="${i===tab?"on":""}"></button>`).join("");
+document.body.classList.toggle("book",book);document.getElementById("md").textContent=book?"📒 Copy style":"📖 Book style";
+const t=T[tab];
+const h=t[2].map((x,k)=>{const id=t[3]+k,d=S[id];if((flt==="todo"&&d)||(flt==="done"&&!d))return"";
+const q=x[0].split("#"),ty=t[3]==="d"?"d":"i",verb=ty==="d"?"Find ":"Evaluate ";
+const ext=q[1]?(/^x=/.test(q[1])?", at ":", given ")+tx(q[1]):"";
+return `<article class="pg ${d?"done":""}" data-id="${id}"><div class="hd"><input class="ck" type="checkbox" ${d?"checked":""} aria-label="done"><span class="qn">Q.${k+1}</span><span class="lab">${x[4]||t[4]}</span></div><p>${verb}${tx(q[0])}${ext}</p><div class="fm">Formula: ${tx(x[3])}</div><div class="sol"><b>Sol.</b>${sol(ty,x[0],x[1])}</div><div class="ans"><b>Ans.</b> ${tx("\\boxed{"+x[2]+"}")}</div></article>`}).join("");
+m.innerHTML=h||'<div class="empty">Nothing here. Try another filter.</div>';stats();typeset()}
+function save(){try{localStorage.setItem("hw63",JSON.stringify(S))}catch(e){}}
+m.addEventListener("change",e=>{const a=e.target.closest(".pg");if(!a)return;S[a.dataset.id]=e.target.checked;save();
+if(flt==="all"){a.classList.toggle("done",e.target.checked);stats()}else render()});
+tb.addEventListener("click",e=>{const b=e.target.closest("button");if(!b)return;tab=+b.dataset.t;render();scrollTo(0,0)});
+document.querySelectorAll(".tools [data-f]").forEach(b=>b.onclick=()=>{flt=b.dataset.f;document.querySelectorAll(".tools [data-f]").forEach(x=>x.classList.toggle("on",x===b));render()});
+document.getElementById("md").onclick=()=>{book=!book;try{localStorage.setItem("hw63m",book?"1":"0")}catch(e){}render()};
+document.getElementById("r").onclick=()=>{if(confirm("Clear all ticks?")){S={};save();render()}};
+render();
+</script></body></html>
